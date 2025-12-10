@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>语音识别服务 - Web 界面</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      opacity: 0.9;
+    }
+
+    .content {
+      padding: 30px;
+    }
+
+    .upload-section {
+      border: 2px dashed #667eea;
+      border-radius: 8px;
+      padding: 40px;
+      text-align: center;
+      background: #f8f9ff;
+      margin-bottom: 30px;
+      transition: all 0.3s;
+    }
+
+    .upload-section:hover {
+      border-color: #764ba2;
+      background: #f0f1ff;
+    }
+
+    .upload-section.dragging {
+      background: #e8e9ff;
+      border-color: #764ba2;
+    }
+
+    .file-input {
+      display: none;
+    }
+
+    .upload-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 12px 30px;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .upload-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .upload-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .status {
+      padding: 15px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    .status.info {
+      background: #e3f2fd;
+      color: #1976d2;
+      border-left: 4px solid #1976d2;
+    }
+
+    .status.success {
+      background: #e8f5e9;
+      color: #388e3c;
+      border-left: 4px solid #388e3c;
+    }
+
+    .status.error {
+      background: #ffebee;
+      color: #d32f2f;
+      border-left: 4px solid #d32f2f;
+    }
+
+    .results {
+      margin-top: 30px;
+    }
+
+    .speaker-segment {
+      background: #f8f9ff;
+      border-left: 4px solid #667eea;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 4px;
+    }
+
+    .speaker-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .speaker-id {
+      font-weight: bold;
+      color: #667eea;
+    }
+
+    .timestamp {
+      color: #999;
+    }
+
+    .speaker-text {
+      font-size: 16px;
+      line-height: 1.6;
+      color: #333;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 20px;
+    }
+
+    .spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #667eea;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 15px;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .task-info {
+      background: #f5f5f5;
+      padding: 15px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+
+    .task-info strong {
+      color: #667eea;
+    }
+
+    .btn-secondary {
+      background: #f5f5f5;
+      color: #333;
+      padding: 8px 20px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-left: 10px;
+    }
+
+    .btn-secondary:hover {
+      background: #e0e0e0;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🎤 语音识别服务</h1>
+      <p>支持说话人分离的语音转文字</p>
+    </div>
+
+    <div class="content">
+      <div class="upload-section" id="uploadSection">
+        <p style="font-size: 18px; margin-bottom: 20px;">📁 上传音频文件</p>
+        <p style="color: #666; margin-bottom: 20px;">支持 WAV, MP3, M4A, FLAC 等格式</p>
+        <input type="file" id="fileInput" class="file-input" accept="audio/*">
+        <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+          选择文件
+        </button>
+        <p style="margin-top: 15px; font-size: 14px; color: #999;">或拖拽文件到此区域</p>
+      </div>
+
+      <div class="status" id="status"></div>
+
+      <div id="taskInfo" style="display: none;" class="task-info">
+        <strong>任务 ID:</strong> <span id="taskId"></span>
+        <button class="btn-secondary" onclick="copyTaskId()">复制</button>
+      </div>
+
+      <div id="loading" class="loading" style="display: none;">
+        <div class="spinner"></div>
+        <p>正在处理音频...</p>
+        <p style="font-size: 14px; color: #666; margin-top: 10px;">这可能需要几分钟时间，请耐心等待</p>
+      </div>
+
+      <div id="results" class="results"></div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = 'http://localhost:6006';
+    let currentTaskId = null;
+    let checkInterval = null;
+
+    // 文件输入处理
+    document.getElementById('fileInput').addEventListener('change', handleFileSelect);
+
+    // 拖拽上传
+    const uploadSection = document.getElementById('uploadSection');
+
+    uploadSection.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadSection.classList.add('dragging');
+    });
+
+    uploadSection.addEventListener('dragleave', () => {
+      uploadSection.classList.remove('dragging');
+    });
+
+    uploadSection.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadSection.classList.remove('dragging');
+
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        handleFile(files[0]);
+      }
+    });
+
+    function handleFileSelect(e) {
+      const file = e.target.files[0];
+      if (file) {
+        handleFile(file);
+      }
+    }
+
+    async function handleFile(file) {
+      // 验证文件类型
+      const allowedTypes = ['audio/wav', 'audio/mpeg', 'audio/mp3', 'audio/m4a', 'audio/flac', 'audio/ogg'];
+      if (!file.type.startsWith('audio/')) {
+        showStatus('error', '请上传音频文件');
+        return;
+      }
+
+      showStatus('info', `正在上传文件: ${file.name}`);
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        const response = await fetch(`${API_BASE}/api/tasks/upload`, {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.detail || '上传失败');
+        }
+
+        const result = await response.json();
+        currentTaskId = result.task_id;
+
+        showStatus('success', `文件上传成功！任务ID: ${currentTaskId}`);
+        document.getElementById('taskInfo').style.display = 'block';
+        document.getElementById('taskId').textContent = currentTaskId;
+
+        // 开始轮询任务状态
+        startPolling();
+
+      } catch (error) {
+        showStatus('error', `上传失败: ${error.message}`);
+      }
+    }
+
+    function startPolling() {
+      document.getElementById('loading').style.display = 'block';
+      document.getElementById('results').innerHTML = '';
+
+      checkInterval = setInterval(checkTaskStatus, 3000);
+      checkTaskStatus(); // 立即检查一次
+    }
+
+    async function checkTaskStatus() {
+      if (!currentTaskId) return;
+
+      try {
+        const response = await fetch(`${API_BASE}/api/tasks/${currentTaskId}`);
+
+        if (!response.ok) {
+          throw new Error('查询任务失败');
+        }
+
+        const result = await response.json();
+
+        if (result.status === 'completed') {
+          clearInterval(checkInterval);
+          document.getElementById('loading').style.display = 'none';
+          showStatus('success', '处理完成！');
+          displayResults(result);
+        } else if (result.status === 'failed') {
+          clearInterval(checkInterval);
+          document.getElementById('loading').style.display = 'none';
+          showStatus('error', `处理失败: ${result.error_message}`);
+        }
+        // pending 或 processing 状态继续等待
+
+      } catch (error) {
+        clearInterval(checkInterval);
+        document.getElementById('loading').style.display = 'none';
+        showStatus('error', `查询失败: ${error.message}`);
+      }
+    }
+
+    function displayResults(result) {
+      const resultsDiv = document.getElementById('results');
+
+      if (!result.speakers || result.speakers.length === 0) {
+        resultsDiv.innerHTML = '<p style="text-align: center; color: #999;">未检测到语音内容</p>';
+        return;
+      }
+
+      let html = '<h2 style="margin-bottom: 20px;">转录结果</h2>';
+
+      result.speakers.forEach((speaker, index) => {
+        const duration = speaker.end - speaker.start;
+        html += `
+                    <div class="speaker-segment">
+                        <div class="speaker-header">
+                            <span class="speaker-id">${speaker.speaker_id}</span>
+                            <span class="timestamp">
+                                ${formatTime(speaker.start)} - ${formatTime(speaker.end)}
+                                (${duration.toFixed(1)}秒)
+                            </span>
+                        </div>
+                        <div class="speaker-text">${escapeHtml(speaker.text)}</div>
+                    </div>
+                `;
+      });
+
+      // 添加导出按钮
+      html += `
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="upload-btn" onclick="exportResults()">导出为文本</button>
+                </div>
+            `;
+
+      resultsDiv.innerHTML = html;
+    }
+
+    function formatTime(seconds) {
+      const mins = Math.floor(seconds / 60);
+      const secs = (seconds % 60).toFixed(1);
+      return `${mins}:${secs.padStart(4, '0')}`;
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function showStatus(type, message) {
+      const statusDiv = document.getElementById('status');
+      statusDiv.className = `status ${type}`;
+      statusDiv.textContent = message;
+      statusDiv.style.display = 'block';
+
+      if (type === 'error' || type === 'success') {
+        setTimeout(() => {
+          statusDiv.style.display = 'none';
+        }, 5000);
+      }
+    }
+
+    function copyTaskId() {
+      const taskId = document.getElementById('taskId').textContent;
+      navigator.clipboard.writeText(taskId).then(() => {
+        showStatus('success', '任务ID已复制到剪贴板');
+      });
+    }
+
+    async function exportResults() {
+      if (!currentTaskId) return;
+
+      try {
+        const response = await fetch(`${API_BASE}/api/tasks/${currentTaskId}`);
+        const result = await response.json();
+
+        if (!result.speakers) return;
+
+        let text = `语音转录结果\n`;
+        text += `文件: ${result.filename}\n`;
+        text += `时间: ${result.created_at}\n`;
+        text += `${'='.repeat(50)}\n\n`;
+
+        result.speakers.forEach((speaker, index) => {
+          text += `[${speaker.speaker_id}] ${formatTime(speaker.start)} - ${formatTime(speaker.end)}\n`;
+          text += `${speaker.text}\n\n`;
+        });
+
+        const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `transcription_${currentTaskId}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        showStatus('success', '导出成功');
+      } catch (error) {
+        showStatus('error', `导出失败: ${error.message}`);
+      }
+    }
+
+    // 页面加载时检查服务状态
+    window.addEventListener('load', async () => {
+      try {
+        const response = await fetch(`${API_BASE}/`);
+        if (!response.ok) throw new Error();
+        showStatus('success', '服务已连接');
+      } catch {
+        showStatus('error', '无法连接到服务，请确认服务已启动');
+      }
+    });
+  </script>
+</body>
+
+</html>

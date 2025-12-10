@@ -3,3 +3,17 @@ torchaudio>=2.9.1
 torchcodec>=0.9.0
 transformers==4.51.3
 flash-attn==2.4.2
+
+# Web服务依赖
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+python-multipart>=0.0.9
+pydantic>=2.0.0
+
+# 说话人分离
+pyannote.audio>=3.1.0
+
+# 环境变量支持（可选）
+python-dotenv>=1.0.0
+
+# 数据库 (SQLite 是 Python 内置的，无需额外安装)
