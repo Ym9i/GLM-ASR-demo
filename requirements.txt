@@ -16,4 +16,7 @@ pyannote.audio>=3.1.0
 # 环境变量支持（可选）
 python-dotenv>=1.0.0
 
+# Hugging Face CLI（用于模型下载）
+huggingface_hub[cli]>=0.20.0
+
 # 数据库 (SQLite 是 Python 内置的，无需额外安装)

@@ -28,56 +28,99 @@ def check_token():
     return True
 
 
+def check_huggingface_cli():
+    """检查 huggingface-cli 是否安装"""
+    import subprocess
+    try:
+        result = subprocess.run(
+            ["huggingface-cli", "--version"],
+            capture_output=True,
+            text=True,
+            timeout=5
+        )
+        if result.returncode == 0:
+            return True
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        pass
+    return False
+
+
 def download_pyannote_models():
-    """下载 pyannote 模型"""
+    """使用 huggingface-cli 下载 pyannote 模型"""
     print("\n" + "="*60)
     print("开始下载 pyannote-audio 模型")
     print("="*60)
     
+    # 检查 huggingface-cli
+    if not check_huggingface_cli():
+        print("\n❌ 未找到 huggingface-cli")
+        print("请先安装:")
+        print("   pip install -U huggingface_hub[cli]")
+        return False
+    
+    import subprocess
+    
+    # 先登录
+    token = os.getenv("HUGGINGFACE_TOKEN")
+    print("\n🔐 使用 Token 登录 Hugging Face...")
     try:
-        from pyannote.audio import Pipeline
-        import torch
+        result = subprocess.run(
+            ["huggingface-cli", "login", "--token", token],
+            capture_output=True,
+            text=True,
+            timeout=10
+        )
+        if result.returncode == 0:
+            print("✓ 登录成功")
+        else:
+            print(f"⚠️  登录警告: {result.stderr}")
+    except Exception as e:
+        print(f"⚠️  登录失败: {str(e)}")
+        print("继续尝试下载...")
+    
+    # 模型列表
+    models = [
+        "pyannote/speaker-diarization-3.1",
+        "pyannote/segmentation-3.0",
+    ]
+    
+    success = True
+    for model_name in models:
+        print(f"\n📦 下载模型: {model_name}")
+        print("   这可能需要几分钟时间，请耐心等待...")
         
-        # 模型列表
-        models = [
-            "pyannote/speaker-diarization-3.1",
-            "pyannote/segmentation-3.0",
-        ]
-        
-        for model_name in models:
-            print(f"\n📦 下载模型: {model_name}")
-            print("   这可能需要几分钟时间，请耐心等待...")
+        try:
+            # 使用 huggingface-cli 下载
+            result = subprocess.run(
+                ["huggingface-cli", "download", model_name],
+                capture_output=False,  # 显示下载进度
+                text=True,
+                timeout=600  # 10分钟超时
+            )
             
-            try:
-                pipeline = Pipeline.from_pretrained(
-                    model_name,
-                    use_auth_token=os.getenv("HUGGINGFACE_TOKEN")
-                )
+            if result.returncode == 0:
                 print(f"   ✓ {model_name} 下载完成")
+            else:
+                print(f"   ✗ {model_name} 下载失败")
+                success = False
                 
-                # 释放内存
-                del pipeline
-                if torch.cuda.is_available():
-                    torch.cuda.empty_cache()
-                
-            except Exception as e:
-                print(f"   ✗ {model_name} 下载失败: {str(e)}")
-                return False
-        
+        except subprocess.TimeoutExpired:
+            print(f"   ✗ {model_name} 下载超时")
+            success = False
+        except Exception as e:
+            print(f"   ✗ {model_name} 下载失败: {str(e)}")
+            success = False
+    
+    if success:
         print("\n" + "="*60)
         print("✅ 所有 pyannote 模型下载完成！")
         print("="*60)
-        return True
-        
-    except ImportError as e:
-        print(f"\n❌ 错误: 缺少必需的包")
-        print(f"   {str(e)}")
-        print("\n请先安装依赖:")
-        print("   pip install -r requirements.txt")
-        return False
-    except Exception as e:
-        print(f"\n❌ 下载失败: {str(e)}")
-        return False
+    else:
+        print("\n" + "="*60)
+        print("⚠️  部分模型下载失败")
+        print("="*60)
+    
+    return success
 
 
 def check_glm_asr_model():

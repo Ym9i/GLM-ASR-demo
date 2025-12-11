@@ -105,18 +105,18 @@
 
 ## 🔗 快速链接
 
-| 内容       | 文件                                     |
-| ---------- | ---------------------------------------- |
-| 快速开始   | [QUICKSTART.md](QUICKSTART.md)           |
-| 模型下载   | [MODEL_SETUP.md](MODEL_SETUP.md)         |
-| 使用手册   | [SERVICE_README.md](SERVICE_README.md)   |
-| 技术文档   | [PROJECT_SUMMARY.md](PROJECT_SUMMARY.md) |
-| 主服务代码 | [service.py](service.py)                 |
-| 测试客户端 | [test_service.py](test_service.py)       |
+| 内容         | 文件                                     |
+| ------------ | ---------------------------------------- |
+| 快速开始     | [QUICKSTART.md](QUICKSTART.md)           |
+| 模型下载     | [MODEL_SETUP.md](MODEL_SETUP.md)         |
+| 使用手册     | [SERVICE_README.md](SERVICE_README.md)   |
+| 技术文档     | [PROJECT_SUMMARY.md](PROJECT_SUMMARY.md) |
+| 主服务代码   | [service.py](service.py)                 |
+| 测试客户端   | [test_service.py](test_service.py)       |
 | 模型下载工具 | [download_models.py](download_models.py) |
 | 环境验证脚本 | [verify_setup.py](verify_setup.py)       |
-| Web 界面   | [web_ui.html](web_ui.html)               |
-| 环境配置   | [.env.example](.env.example)             |
+| Web 界面     | [web_ui.html](web_ui.html)               |
+| 环境配置     | [.env.example](.env.example)             |
 
 ## 📝 更新日志
 

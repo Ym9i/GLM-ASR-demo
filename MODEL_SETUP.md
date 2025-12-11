@@ -44,14 +44,23 @@ python -c "from huggingface_hub import snapshot_download; snapshot_download('zai
 
 **下载方式**:
 
-使用提供的自动化脚本：
-
+#### 方式 A: 使用自动化脚本（推荐）
 ```bash
 # 设置 Token
 export HUGGINGFACE_TOKEN=your_token_here
 
-# 运行下载脚本
+# 运行下载脚本（使用 huggingface-cli）
 python download_models.py
+```
+
+#### 方式 B: 直接使用 huggingface-cli
+```bash
+# 登录
+huggingface-cli login --token your_token_here
+
+# 下载模型
+huggingface-cli download pyannote/speaker-diarization-3.1
+huggingface-cli download pyannote/segmentation-3.0
 ```
 
 ## 使用模型下载脚本
@@ -230,8 +239,12 @@ python download_models.py
 
 ### Q: 如何查看已下载的模型？
 
-A: 查看缓存目录：
+A: 使用 huggingface-cli：
 ```bash
+# 查看缓存信息和已下载模型
+huggingface-cli scan-cache
+
+# 或直接查看目录
 ls -lh ~/.cache/huggingface/hub/
 ```
 
@@ -246,9 +259,24 @@ A: 模型大小约：
 
 ## 手动下载（高级）
 
-如果自动脚本不工作，可以手动下载：
+### 方式 1: 使用 huggingface-cli（推荐）
 
-### 下载 pyannote 模型
+```bash
+# 安装 CLI
+pip install -U "huggingface_hub[cli]"
+
+# 登录（使用 token）
+huggingface-cli login --token your_token_here
+
+# 下载指定模型
+huggingface-cli download pyannote/speaker-diarization-3.1
+huggingface-cli download pyannote/segmentation-3.0
+
+# 查看已下载的模型
+huggingface-cli scan-cache
+```
+
+### 方式 2: 使用 Python API
 
 ```python
 from pyannote.audio import Pipeline
@@ -256,18 +284,41 @@ import os
 
 os.environ["HUGGINGFACE_TOKEN"] = "your_token_here"
 
-# 下载模型
+# 下载模型（使用 token 参数，兼容新版本）
 pipeline = Pipeline.from_pretrained(
     "pyannote/speaker-diarization-3.1",
-    use_auth_token=os.environ["HUGGINGFACE_TOKEN"]
+    token=os.environ["HUGGINGFACE_TOKEN"]
 )
 print("✓ speaker-diarization-3.1 下载完成")
 
 pipeline = Pipeline.from_pretrained(
     "pyannote/segmentation-3.0",
-    use_auth_token=os.environ["HUGGINGFACE_TOKEN"]
+    token=os.environ["HUGGINGFACE_TOKEN"]
 )
 print("✓ segmentation-3.0 下载完成")
+```
+
+## huggingface-cli 常用命令
+
+```bash
+# 登录
+huggingface-cli login --token YOUR_TOKEN
+
+# 查看登录状态
+huggingface-cli whoami
+
+# 下载模型
+huggingface-cli download MODEL_ID
+
+# 查看已下载模型和缓存大小
+huggingface-cli scan-cache
+
+# 删除特定模型缓存
+huggingface-cli delete-cache
+
+# 环境变量方式使用 Token（无需登录）
+export HF_TOKEN=your_token_here
+huggingface-cli download MODEL_ID
 ```
 
 ## 下一步

@@ -155,7 +155,7 @@ class ModelManager:
         self.asr_model.eval()
         print("ASR model loaded successfully")
     
-    def load_diarization_pipeline(self, use_auth_token: Optional[str] = None):
+    def load_diarization_pipeline(self, auth_token: Optional[str] = None):
         """加载说话人分离模型"""
         if self.diarization_pipeline is not None:
             return
@@ -163,17 +163,17 @@ class ModelManager:
         print("Loading diarization pipeline...")
         # 需要 Hugging Face token 来访问 pyannote 模型
         # 可以从环境变量获取: export HUGGINGFACE_TOKEN=your_token
-        token = use_auth_token or os.getenv("HUGGINGFACE_TOKEN")
+        token = auth_token or os.getenv("HUGGINGFACE_TOKEN") or os.getenv("HF_TOKEN")
         if not token:
             raise ValueError(
                 "需要 Hugging Face token 来访问 pyannote 模型。"
-                "请设置环境变量 HUGGINGFACE_TOKEN 或在初始化时传入。"
+                "请设置环境变量 HUGGINGFACE_TOKEN 或 HF_TOKEN。"
                 "获取token: https://huggingface.co/settings/tokens"
             )
         
         self.diarization_pipeline = Pipeline.from_pretrained(
             "pyannote/speaker-diarization-3.1",
-            use_auth_token=token
+            token=token
         )
         
         if torch.cuda.is_available():
