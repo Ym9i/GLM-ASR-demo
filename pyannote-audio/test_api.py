@@ -24,8 +24,8 @@ print(f"可用方法: {[m for m in dir(diarization) if not m.startswith('_')]}")
 print("\n说话人分段结果:")
 print("=" * 60)
 
-# 正确的迭代方式
-for turn, _, speaker in diarization.itertracks(yield_label=True):
+# 正确的迭代方式: DiarizeOutput.speaker_diarization 才是 Annotation 对象
+for turn, _, speaker in diarization.speaker_diarization.itertracks(yield_label=True):
     print(f"说话人 {speaker}: {turn.start:.2f}秒 -> {turn.end:.2f}秒")
 
 print("\n✓ 测试成功!")

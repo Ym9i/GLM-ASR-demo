@@ -81,8 +81,8 @@ def process_audio_in_chunks(audio_file, pipeline):
             # 处理这一块
             diarization = pipeline(tmp_path, min_speakers=1, max_speakers=5)
             
-            # 调整时间戳
-            for turn, _, speaker in diarization.itertracks(yield_label=True):
+            # 调整时间戳 (使用 .speaker_diarization 获取 Annotation 对象)
+            for turn, _, speaker in diarization.speaker_diarization.itertracks(yield_label=True):
                 adjusted_start = turn.start + start_time
                 adjusted_end = turn.end + start_time
                 all_results.append((adjusted_start, adjusted_end, speaker))
@@ -135,7 +135,7 @@ if isinstance(results, list):
     print(f"检测到 {len(speakers)} 个说话人: {', '.join(sorted(speakers))}")
     
 else:
-    # 直接处理的结果 (Annotation 对象)
+    # 直接处理的结果 (DiarizeOutput 对象)
     print("\n说话人分段结果:")
     print("=" * 60)
     
@@ -143,8 +143,8 @@ else:
     all_segments = []
     speakers = set()
     
-    # Annotation 对象使用 itertracks 方法
-    for turn, _, speaker in results.itertracks(yield_label=True):
+    # DiarizeOutput.speaker_diarization 是 Annotation 对象,才有 itertracks 方法
+    for turn, _, speaker in results.speaker_diarization.itertracks(yield_label=True):
         all_segments.append((turn.start, turn.end, speaker))
         speakers.add(speaker)
         print(f"说话人 {speaker}: {turn.start:.2f}秒 -> {turn.end:.2f}秒 (时长: {turn.end - turn.start:.2f}秒)")
@@ -160,7 +160,7 @@ else:
     # 保存为 RTTM 格式
     rttm_file = "diarization_result.rttm"
     with open(rttm_file, "w") as f:
-        results.write_rttm(f)
+        results.speaker_diarization.write_rttm(f)
     print(f"RTTM 格式结果已保存到: {rttm_file}")
     
     # 统计信息

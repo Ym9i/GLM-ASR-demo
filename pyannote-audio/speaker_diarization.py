@@ -55,7 +55,7 @@ diarization = pipeline(
 # 打印结果
 print("\n说话人分段结果:")
 print("=" * 60)
-for turn, _, speaker in diarization.itertracks(yield_label=True):
+for turn, _, speaker in diarization.speaker_diarization.itertracks(yield_label=True):
     print(f"说话人 {speaker}: {turn.start:.2f}秒 -> {turn.end:.2f}秒 (时长: {turn.end - turn.start:.2f}秒)")
 
 # 保存结果到文件
@@ -63,7 +63,7 @@ output_file = "diarization_result.txt"
 with open(output_file, "w", encoding="utf-8") as f:
     f.write("说话人分段结果\n")
     f.write("=" * 60 + "\n\n")
-    for turn, _, speaker in diarization.itertracks(yield_label=True):
+    for turn, _, speaker in diarization.speaker_diarization.itertracks(yield_label=True):
         f.write(f"说话人 {speaker}: {turn.start:.2f}秒 -> {turn.end:.2f}秒 (时长: {turn.end - turn.start:.2f}秒)\n")
 
 print(f"\n结果已保存到: {output_file}")
@@ -71,12 +71,12 @@ print(f"\n结果已保存到: {output_file}")
 # 保存为 RTTM 格式（标准的说话人分段格式）
 rttm_file = "diarization_result.rttm"
 with open(rttm_file, "w") as f:
-    diarization.write_rttm(f)
+    diarization.speaker_diarization.write_rttm(f)
 print(f"RTTM 格式结果已保存到: {rttm_file}")
 
 # 统计信息
 speakers = set()
-for turn, _, speaker in diarization.itertracks(yield_label=True):
+for turn, _, speaker in diarization.speaker_diarization.itertracks(yield_label=True):
     speakers.add(speaker)
 
 print(f"\n统计信息:")
