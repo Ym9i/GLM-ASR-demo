@@ -9,11 +9,15 @@
 3. 输入名称（如 "pyannote-access"），选择 "Read" 权限
 4. 复制生成的 token
 
-### 1.2 接受模型使用条款
+### 1.2 接受模型使用条款（必须！）
 
-访问以下链接并点击 "Agree and access repository"：
-- https://huggingface.co/pyannote/speaker-diarization-3.1
-- https://huggingface.co/pyannote/segmentation-3.0
+⚠️ **这是最重要的步骤，不完成会提示无权访问！**
+
+1. 登录 Hugging Face 账号
+2. 访问以下链接，点击页面上的 **"Agree and access repository"** 按钮：
+   - https://huggingface.co/pyannote/speaker-diarization-3.1
+   - https://huggingface.co/pyannote/segmentation-3.0
+3. 等待几秒钟，权限会自动生效
 
 ## 2. 安装
 

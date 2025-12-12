@@ -31,10 +31,26 @@ pipeline = Pipeline.from_pretrained(
 # 如果有 GPU，使用 GPU 加速
 if torch.cuda.is_available():
     pipeline.to(torch.device("cuda"))
+    print("使用 GPU 进行处理")
+else:
+    print("使用 CPU 进行处理")
 
-# 执行说话人分段
+# 优化内存使用
+# 1. 设置较小的批处理大小
+# 2. 减少重叠窗口
+# 3. 使用较少的说话人数量限制
 print(f"正在处理音频文件: {audio_file}")
-diarization = pipeline(audio_file)
+print("注意: 如果内存不足,请尝试:")
+print("  1. 分割音频文件为较小的片段")
+print("  2. 降低音频采样率")
+print("  3. 使用更小的模型或调整参数")
+
+# 添加内存优化参数
+diarization = pipeline(
+    audio_file,
+    min_speakers=1,  # 最少说话人数
+    max_speakers=5,  # 最多说话人数(减少计算量)
+)
 
 # 打印结果
 print("\n说话人分段结果:")

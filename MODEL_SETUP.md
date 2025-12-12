@@ -36,11 +36,22 @@ python -c "from huggingface_hub import snapshot_download; snapshot_download('zai
 - pyannote/speaker-diarization-3.1
 - pyannote/segmentation-3.0
 
-**前提条件**:
-1. 获取 Hugging Face Token: https://huggingface.co/settings/tokens
-2. 接受模型使用条款:
-   - https://huggingface.co/pyannote/speaker-diarization-3.1
-   - https://huggingface.co/pyannote/segmentation-3.0
+**前提条件（重要！）**:
+
+⚠️ **必须先完成以下步骤，否则会提示无权访问：**
+
+1. **访问模型页面并申请权限**（必须）:
+   - 访问 https://huggingface.co/pyannote/speaker-diarization-3.1
+   - 点击页面上的 **"Agree and access repository"** 按钮
+   - 访问 https://huggingface.co/pyannote/segmentation-3.0
+   - 同样点击 **"Agree and access repository"** 按钮
+   - 等待几秒钟，权限会自动生效
+
+2. **获取 Hugging Face Token**:
+   - 访问 https://huggingface.co/settings/tokens
+   - 点击 "New token"
+   - 选择 "Read" 权限
+   - 复制生成的 token
 
 **下载方式**:
 
@@ -223,12 +234,23 @@ export HF_ENDPOINT=https://hf-mirror.com
 python download_models.py
 ```
 
+### Q: 提示 "Access to model is restricted" 或 "not in the authorized list"？
+
+A: **这是最常见的问题！** 您需要：
+1. 使用浏览器登录 Hugging Face
+2. 访问以下页面并点击 **"Agree and access repository"**:
+   - https://huggingface.co/pyannote/speaker-diarization-3.1
+   - https://huggingface.co/pyannote/segmentation-3.0
+3. 等待几秒钟让权限生效
+4. 重新运行下载脚本
+
 ### Q: 提示 Token 无效？
 
 A: 确认：
 1. Token 是否正确复制（没有多余空格）
-2. 是否接受了模型使用条款
+2. **是否已经在网页上接受了模型使用条款**（最重要！）
 3. Token 是否有 Read 权限
+4. 是否使用正确的环境变量名（HUGGINGFACE_TOKEN 或 HF_TOKEN）
 
 ### Q: 下载中断了怎么办？
 

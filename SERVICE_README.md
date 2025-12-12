@@ -222,12 +222,29 @@ curl -X GET "http://localhost:6006/api/tasks?limit=10&offset=0"
 
 ## 故障排查
 
-### 问题：pyannote 模型加载失败
+### 问题：pyannote 模型加载失败或提示 "Access restricted"
+
+⚠️ **这是最常见的问题！**
+
+**错误信息**:
+```
+Cannot access gated repo for url https://huggingface.co/pyannote/speaker-diarization-3.1
+Access to model is restricted and you are not in the authorized list
+```
 
 **解决方案**:
-- 确认已设置 `HUGGINGFACE_TOKEN` 环境变量
-- 确认已接受模型使用条款
-- 检查网络连接
+1. **【必须】先在网页上接受使用条款**（最重要！）:
+   - 访问 https://huggingface.co/pyannote/speaker-diarization-3.1
+   - 点击 **"Agree and access repository"** 按钮
+   - 访问 https://huggingface.co/pyannote/segmentation-3.0
+   - 同样点击 **"Agree and access repository"** 按钮
+   - 等待几秒钟让权限生效
+
+2. 确认已设置正确的 Token:
+   - `export HUGGINGFACE_TOKEN=your_token_here`
+   - 或 `export HF_TOKEN=your_token_here`
+
+3. 检查网络连接
 
 ### 问题：CUDA 内存不足
 

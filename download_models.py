@@ -9,22 +9,29 @@ from pathlib import Path
 
 def check_token():
     """检查 Hugging Face Token"""
-    token = os.getenv("HUGGINGFACE_TOKEN")
+    token = os.getenv("HUGGINGFACE_TOKEN") or os.getenv("HF_TOKEN")
     
     if not token:
         print("❌ 错误: 未设置 HUGGINGFACE_TOKEN 环境变量")
-        print("\n请按以下步骤操作:")
-        print("1. 访问 https://huggingface.co/settings/tokens")
-        print("2. 创建新的 token (Read 权限)")
-        print("3. 接受模型使用条款:")
-        print("   - https://huggingface.co/pyannote/speaker-diarization-3.1")
-        print("   - https://huggingface.co/pyannote/segmentation-3.0")
-        print("\n4. 设置环境变量:")
+        print("\n⚠️  请按以下步骤操作（重要！）:")
+        print("\n1. 【必须】先在网页上接受模型使用条款:")
+        print("   访问以下链接，点击 'Agree and access repository' 按钮:")
+        print("   • https://huggingface.co/pyannote/speaker-diarization-3.1")
+        print("   • https://huggingface.co/pyannote/segmentation-3.0")
+        print("\n2. 获取 Token:")
+        print("   访问 https://huggingface.co/settings/tokens")
+        print("   创建新的 token (Read 权限)")
+        print("\n3. 设置环境变量:")
         print("   export HUGGINGFACE_TOKEN=your_token_here")
-        print("\n或者在 .env 文件中设置")
+        print("   或在 .env 文件中设置")
+        print("\n💡 如果已经有 Token 但遇到 'Access restricted' 错误，")
+        print("   请确认已完成步骤 1（接受使用条款）")
         return False
     
-    print(f"✓ 检测到 HUGGINGFACE_TOKEN: {token[:10]}...{token[-4:]}")
+    print(f"✓ 检测到 Token: {token[:10]}...{token[-4:]}")
+    print("💡 如果下载失败提示 'Access restricted'，请确认:")
+    print("   1. 已在网页上点击 'Agree and access repository'")
+    print("   2. 等待几秒钟让权限生效")
     return True
 
 
