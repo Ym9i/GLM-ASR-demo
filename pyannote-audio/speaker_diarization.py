@@ -25,7 +25,7 @@ if not hf_token:
 print(f"正在加载模型...")
 pipeline = Pipeline.from_pretrained(
     "pyannote/speaker-diarization-3.1",
-    use_auth_token=hf_token
+    token=hf_token
 )
 
 # 如果有 GPU，使用 GPU 加速
