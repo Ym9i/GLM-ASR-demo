@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # 音频文件路径
-audio_file = "202512101639.wav"
+audio_file = "202512101639_16k.wav"
 
 # 从环境变量中读取 Hugging Face token
 hf_token = os.getenv("HF_TOKEN")

@@ -135,10 +135,18 @@ if isinstance(results, list):
     print(f"检测到 {len(speakers)} 个说话人: {', '.join(sorted(speakers))}")
     
 else:
-    # 直接处理的结果
+    # 直接处理的结果 (Annotation 对象)
     print("\n说话人分段结果:")
     print("=" * 60)
+    
+    # 收集所有结果用于显示和保存
+    all_segments = []
+    speakers = set()
+    
+    # Annotation 对象使用 itertracks 方法
     for turn, _, speaker in results.itertracks(yield_label=True):
+        all_segments.append((turn.start, turn.end, speaker))
+        speakers.add(speaker)
         print(f"说话人 {speaker}: {turn.start:.2f}秒 -> {turn.end:.2f}秒 (时长: {turn.end - turn.start:.2f}秒)")
     
     # 保存结果
@@ -146,8 +154,8 @@ else:
     with open(output_file, "w", encoding="utf-8") as f:
         f.write("说话人分段结果\n")
         f.write("=" * 60 + "\n\n")
-        for turn, _, speaker in results.itertracks(yield_label=True):
-            f.write(f"说话人 {speaker}: {turn.start:.2f}秒 -> {turn.end:.2f}秒 (时长: {turn.end - turn.start:.2f}秒)\n")
+        for start, end, speaker in all_segments:
+            f.write(f"说话人 {speaker}: {start:.2f}秒 -> {end:.2f}秒 (时长: {end - start:.2f}秒)\n")
     
     # 保存为 RTTM 格式
     rttm_file = "diarization_result.rttm"
@@ -156,9 +164,6 @@ else:
     print(f"RTTM 格式结果已保存到: {rttm_file}")
     
     # 统计信息
-    speakers = set()
-    for turn, _, speaker in results.itertracks(yield_label=True):
-        speakers.add(speaker)
     print(f"\n统计信息:")
     print(f"检测到 {len(speakers)} 个说话人: {', '.join(sorted(speakers))}")
 
